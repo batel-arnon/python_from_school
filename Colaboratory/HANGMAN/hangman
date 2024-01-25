@@ -1,0 +1,147 @@
+import random
+
+print("Welcome to the game Hangman")
+print("""
+  _    _
+ | |  | |
+ | |__| | __ _ _ __   __ _ _ __ ___   __ _ _ __
+ |  __  |/ _` | '_ \ / _` | '_ ` _ \ / _` | '_ \
+ | |  | | (_| | | | | (_| | | | | | | (_| | | | |
+ |_|  |_|\__,_|_| |_|\__, |_| |_| |_|\__,_|_| |_|
+                      __/ |
+                     |___/""")
+print(random.randint(5,10))
+
+HANGMAN_ASCII_ART = "Welcome to the game Hangman" + """
+  _    _
+ | |  | |
+ | |__| | __ _ _ __   __ _ _ __ ___   __ _ _ __
+ |  __  |/ _` | '_ \ / _` | '_ ` _ \ / _` | '_ \
+ | |  | | (_| | | | | (_| | | | | | | (_| | | | |
+ |_|  |_|\__,_|_| |_|\__, |_| |_| |_|\__,_|_| |_|
+                      __/ |
+                     |___/
+                     """
+MAX_TRIES = 6
+def opens():
+    print(HANGMAN_ASCII_ART + "\n" + str(MAX_TRIES))
+
+  def is_valid_input(letter_guessed):
+    if (len(letter_guessed)>1 or not letter_guessed.isalpha()):
+         return False
+    else:
+        return True
+
+fLetter = input("enter your geuss: ")
+is_valid_input(fLetter)
+
+word = input("enter a word your friends shold geuss: ")
+def print_word(word):
+    print ("_ "*(len(word)))
+
+def check_valid_input(letter_guessed, old_letters_guessed):
+    if letter_guessed in old_letters_guessed or (len(letter_guessed)>1 or not letter_guessed.isalpha()):
+        return False
+    return True
+
+old = ['a','b','c']
+print(check_valid_input('s',old))
+
+def try_update_letter_guessed(letter_guessed, old_letters_guessed):
+    if check_valid_input(letter_guessed,old_letters_guessed):
+        old_letters_guessed.append(letter_guessed)
+        return True
+    print("X")
+    s = sorted(old_letters_guessed)
+    for i in range(len(s)-1):
+        print(s[i] + "->")
+    print(s[-1])
+    return False
+
+def show_hidden_word(secret_word, old_letters_guessed):
+    word = ''
+    for let in secret_word:
+        if let in old_letters_guessed:
+            word += let + ' '
+        else:
+            word += '_ '
+    return word
+
+def check_win(secret_word, old_letters_guessed):
+    word = show_hidden_word(secret_word, old_letters_guessed)
+    if '_ ' not in word:
+        return True
+    return False
+
+def print_hangman(num_of_tries):
+    if num_of_tries==1:
+      print(HANGMAN_PHOTOS['a1st'])
+    elif num_of_tries == 2:
+      print(HANGMAN_PHOTOS['b2nd'])
+    elif num_of_tries == 3:
+      print(HANGMAN_PHOTOS['c3rd'])
+    elif num_of_tries == 4:
+      print(HANGMAN_PHOTOS['d4th'])
+    elif num_of_tries == 5:
+      print(HANGMAN_PHOTOS['e5th'])
+    elif num_of_tries == 6:
+      print(HANGMAN_PHOTOS['f6th'])
+    elif num_of_tries == 7:
+      print(HANGMAN_PHOTOS['g7th'])
+
+def choose_word(file_path, index):
+    fle = open(file_path,'r')
+    lst = fle.read.split(" ")
+    while len(lst)<index:
+        index = index - len(lst)
+    tp = (len(lst), lst[index])
+    return tp
+
+def is_exsist(letter,word):
+    if letter in word:
+      return True
+    return False
+
+HANGMAN_PHOTOS = {"a1st": """x-------x""",
+                  "b2nd":"""
+x-------x
+        |
+        |
+        |
+        |
+        |""",
+                  "c3rd":""""
+    x-------x
+    |       |
+    |       0
+    |
+    |
+    |"""
+    , "d4th": """
+    x-------x
+    |       |
+    |       0
+    |       |
+    |
+    |"""
+    , "e5th": """
+    x-------x
+    |       |
+    |       0
+    |      /|\
+    |
+    |"""
+    , "f6th": """
+    x-------x
+    |       |
+    |       0
+    |      /|\
+    |      /
+    |"""
+    , "g7th":"""
+    x-------x
+    |       |
+    |       0
+    |      /|\
+    |      / \
+    |"""}
