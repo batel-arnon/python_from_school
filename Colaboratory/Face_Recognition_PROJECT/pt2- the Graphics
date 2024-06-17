@@ -1,0 +1,155 @@
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+import os
+import tensorflow as tf
+from tensorflow.keras import layers, optimizers, Model, models, losses, regularizers, constraints
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Model
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.layers import Activation, ZeroPadding2D, MaxPooling2D, Conv2D, Flatten, Dense, Dropout
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+!pip install tflocalpattern
+from tflocalpattern.layers import LDP
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import fetch_lfw_people
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import Normalizer
+from skimage.io import imread
+import datetime
+from datetime import datetime
+from PIL import Image
+import shutil
+import cv2
+!pip install anvil
+!pip install anvil-uplink
+import anvil
+import anvil.server
+import anvil.media
+from PIL import Image
+import io
+import base64
+
+def load_model(model_path):
+   """
+   Load a TensorFlow model from the specified path.
+
+
+   Args:
+   - model_path (str): Path to the saved model directory.
+
+
+   Returns:
+   - loaded_model: TensorFlow model loaded from the specified path.
+   """
+   try:
+       loaded_model = tf.keras.models.load_model(model_path)
+       print("Model loaded successfully!")
+       return loaded_model
+   except Exception as e:
+       print("Error loading the model:", str(e))
+       return None
+
+
+# הפונקציה מקבלת נתיב, טוענת ממנו את המודל ומחזירה אותו, אם לא קיים מחזירה כלום.
+
+def preprocess_image(img):
+   """Ensures the image is the correct shape and normalises the pixels"""
+   
+   image = Image.fromarray(img)
+   image = image.resize((160, 160))
+   image = image.convert('L')
+   face_array = np.asarray(image)
+   # expands the dimensions
+   face_array = face_array.reshape(160,160,1)
+
+
+   face_array = face_array.astype('float32')
+   scaled_image = np.expand_dims(face_array, axis=0)
+
+
+   return scaled_image
+
+
+#מקבלת תמונה, מנרמלת את הפיקסלים ומעצבת לגודל ולצורה הנכונה
+from google.colab import drive
+drive.mount('/content/drive')
+
+Visualizing test predictions
+
+#load the model
+model = load_model('/content/drive/MyDrive/model2’)
+
+
+def prediction(image, debug=True):
+   # show the image
+   plt.imshow(image)
+   plt.show()
+
+
+   # Process the sample
+   input_sample = preprocess_image(img)
+
+
+   # Prediction
+   results = model.predict(input_sample)
+   result = np.argmax(results, axis=1)
+index = result[0]
+
+
+   if debug:
+       print(index)
+       #print("Detected class is {} with {:.2f}% confidence".format(class_name, round(confidence, 2)))
+
+
+   i = index + 1
+   class_name = f"this is man number {i}"
+   return i
+
+
+// פונקציה שמקבלת תמונה וחוזה את האיש. מחזירה את מספרו- לפי המספר הגבוה ביותר במערך אחרי שחוזים זה המקום של האדם במערך
+
+!pip install anvil-uplink
+import anvil.server
+import anvil.media
+from PIL import Image
+import io
+import base64
+
+@anvil.server.callable
+def classify_image(file):
+ with anvil.media.TempFile(file) as f:
+   image = tf.keras.utils.load_img(f)
+ image_array = np.array(image)
+ image_array = image_array.astype(np.uint8)
+ class_number = prediction(image_array)
+ if class_number<10:
+   file_path = f"/content/drive/MyDrive/yalefaces/subject0{class_number}.happy.gif"
+ else:
+   file_path = f"/content/drive/MyDrive/yalefaces/subject{class_number}.happy.gif"
+ blobi = get_image_as_blob_media(file_path)
+
+
+ return blobi,class_number
+# הפונקציה מקבלת את הקובץ מהממשק, פותחת אותו, חוזה באמצעותו ומחזירה את המספר איש ואת התמונה ב- blob_media כך שהממשק יוכל בחזרה להציג אותה. 
+import anvil.server
+
+
+anvil.server.connect("server_KF64OZUZEKL3QIUTPJL7EEV6-UQURKRC6KLPP6MZT")
+
+
+@anvil.server.callable
+def get_image_as_blob_media(img_path):
+   # Read image from file or generate it
+   image = Image.open(img_path)
+  
+   # Convert image to bytes
+   img_byte_arr = io.BytesIO()
+   image.save(img_byte_arr, format='JPEG')
+   img_byte_arr = img_byte_arr.getvalue()
+  
+   # Create BlobMedia object
+   blob_media = anvil.BlobMedia(content_type='image/jpeg', content=img_byte_arr)
+  
+   return blob_media
+# הפונקציה מקבלת את הנתיב ומחזירה את התמונה באופן של בלובמדיה. 
